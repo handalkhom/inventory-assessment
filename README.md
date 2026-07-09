@@ -64,11 +64,17 @@ php artisan serve
 
 ## Running Feature Tests
 
-The application uses Pest for feature testing. All critical business rules are tested at the Domain Model layer to guarantee universal data integrity.
+The application uses PHPUnit/Pest for feature testing.
+
+### Testing Strategy
+The application separates tests into two suites to maintain focus and speed:
+- **Domain Feature Tests** (`tests/Feature`): Tests the core Domain Models to guarantee universal data integrity and business rules (BR1-BR5) are enforced regardless of the entry point.
+- **REST API Feature Tests** (`tests/Feature/API`): Tests HTTP boundaries, request/response contracts, token authentication, rate limiting, and exception propagation, without re-testing the deeper domain logic.
+
 ```bash
 php artisan test
-# or
-./vendor/bin/pest
+# Run only API tests:
+php artisan test --filter API
 ```
 
 ---
@@ -102,6 +108,24 @@ For a detailed diagram, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
+## Section B: REST API + Integration
+
+The following components were implemented to satisfy **Section B** requirements:
+- **Sanctum Authentication:** Token-based API access. Tokens can be generated from the Filament admin panel via the 'API Tokens' page.
+- **Endpoints:** Implemented the required 5 endpoints under `/api/v1/` protected by Sanctum and rate limiting (60 req/min per token).
+- **Validation:** Enforced HTTP request formatting through FormRequest classes, propagating 422 standard responses for domain-level exceptions.
+- **Standalone Integration Script:** Created `scripts/integration_client.php` to demonstrate external API consumption, pagination handling, and exponential backoff.
+- **Testing:** Implemented an API-specific feature test suite ensuring proper contracts and auth validation.
+
+### API Authentication Notes for Reviewers
+To test the API endpoints:
+1. Log in to the Filament Admin Panel (`/admin`).
+2. Navigate to **API Tokens** in the sidebar.
+3. Generate a new token and copy it.
+4. Pass it as a Bearer token in the `Authorization` header for all `/api/v1/*` requests.
+
+---
+
 ## Assumptions & Design Decisions
 - **Database:** Used MySQL as the primary database instead of SQLite, anticipating the heavy indexing and performance optimization requirements of Section D.
 - **Capacity Utilization Widget:** Since physical volume (`m3`) of individual products was not defined in the schema, the implementation estimates utilization based on `quantity_on_hand` relative to the `warehouse.capacity_m3`.
@@ -123,7 +147,7 @@ For a detailed diagram, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | Section | Task | Time |
 |---------|------|------|
 | **A** | Laravel + Filament CRUD | ~110 min |
-| **B** | REST API + Integration | Pending |
+| **B** | REST API + Integration | ~60 min |
 | **C** | Livewire + Alpine.js | Pending |
 | **D** | Database & SQL (Performance) | Pending |
 | **E** | DevOps & Deployment | Pending |
@@ -132,7 +156,7 @@ For a detailed diagram, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 ---
 
 ## Known Limitations
-- The current implementation covers Section A only. Sections B–F are pending.
+- The current implementation covers Sections A and B. Sections C–F are pending.
 - Form inputs in Filament do not yet automatically calculate available stock for real-time validation without submitting, though server-side enforcement prevents invalid data.
 
 ## Bonus Completed
