@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\StockMovement;
-use App\Models\Product;
-use App\Models\Warehouse;
 use App\Enums\MovementType;
+use App\Models\Product;
+use App\Models\StockMovement;
+use App\Models\Warehouse;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StockMovementFactory extends Factory
@@ -16,7 +16,7 @@ class StockMovementFactory extends Factory
     {
         $type = $this->faker->randomElement(MovementType::cases());
         $quantity = $this->faker->numberBetween(1, 500);
-        
+
         if ($type === MovementType::OUT) {
             $quantity = -$quantity;
         } elseif ($type === MovementType::TRANSFER || $type === MovementType::ADJUSTMENT) {

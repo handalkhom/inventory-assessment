@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use App\Enums\ProductCategory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
-
 
 class Product extends Model
 {
@@ -44,8 +43,8 @@ class Product extends Model
     public function warehouses(): BelongsToMany
     {
         return $this->belongsToMany(Warehouse::class)
-                    ->withPivot('quantity_on_hand')
-                    ->withTimestamps();
+            ->withPivot('quantity_on_hand')
+            ->withTimestamps();
     }
 
     public function stockMovements(): HasMany
