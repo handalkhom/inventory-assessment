@@ -4,16 +4,13 @@ namespace App\Filament\Resources\Products\RelationManagers;
 
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\DetachBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 
 class WarehousesRelationManager extends RelationManager
@@ -37,7 +34,7 @@ class WarehousesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                \Filament\Tables\Columns\TextInputColumn::make('quantity_on_hand')
+                TextInputColumn::make('quantity_on_hand')
                     ->label('Quantity on Hand')
                     ->rules(['required', 'numeric', 'min:0']),
             ])

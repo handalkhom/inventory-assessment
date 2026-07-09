@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use App\Enums\ProductCategory;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 

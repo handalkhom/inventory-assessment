@@ -6,6 +6,7 @@ use App\Enums\MovementType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\ValidationException;
 
 class StockMovement extends Model
 {
@@ -16,7 +17,7 @@ class StockMovement extends Model
         static::saving(function (StockMovement $movement) {
             // BR5: Movement quantity cannot be zero
             if ($movement->quantity == 0) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'quantity' => 'Movement quantity cannot be zero.',
                 ]);
             }
@@ -26,11 +27,11 @@ class StockMovement extends Model
                 // Find current stock in the specified warehouse
                 $product = Product::find($movement->product_id);
                 $available = $product ? $product->warehouses()->where('warehouse_id', $movement->warehouse_id)->first()?->pivot->quantity_on_hand ?? 0 : 0;
-                
-                // If it's updating, we would ideally need to account for the previous quantity, 
+
+                // If it's updating, we would ideally need to account for the previous quantity,
                 // but for this assessment we enforce the strict validation on the current value.
                 if ($movement->quantity > $available) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
+                    throw ValidationException::withMessages([
                         'quantity' => "Insufficient stock. Only {$available} units available.",
                     ]);
                 }

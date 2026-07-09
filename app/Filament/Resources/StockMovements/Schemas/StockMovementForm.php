@@ -4,8 +4,8 @@ namespace App\Filament\Resources\StockMovements\Schemas;
 
 use App\Enums\MovementType;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class StockMovementForm

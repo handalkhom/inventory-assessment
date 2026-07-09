@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Enums\ProductCategory;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ProductsTable
@@ -40,12 +44,12 @@ class ProductsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                \Filament\Tables\Filters\SelectFilter::make('category')
-                    ->options(\App\Enums\ProductCategory::class),
-                \Filament\Tables\Filters\TernaryFilter::make('is_active'),
+                SelectFilter::make('category')
+                    ->options(ProductCategory::class),
+                TernaryFilter::make('is_active'),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
+                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([

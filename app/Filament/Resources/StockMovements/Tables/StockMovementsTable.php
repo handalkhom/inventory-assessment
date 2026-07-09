@@ -2,11 +2,16 @@
 
 namespace App\Filament\Resources\StockMovements\Tables;
 
+use App\Enums\MovementType;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class StockMovementsTable
 {
@@ -37,29 +42,29 @@ class StockMovementsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                \Filament\Tables\Filters\Filter::make('created_at')
+                Filter::make('created_at')
                     ->form([
-                        \Filament\Forms\Components\DatePicker::make('created_from'),
-                        \Filament\Forms\Components\DatePicker::make('created_until'),
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
                     ])
-                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                    ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn (\Illuminate\Database\Eloquent\Builder $query, $date): \Illuminate\Database\Eloquent\Builder => $query->whereDate('created_at', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                             )
                             ->when(
                                 $data['created_until'],
-                                fn (\Illuminate\Database\Eloquent\Builder $query, $date): \Illuminate\Database\Eloquent\Builder => $query->whereDate('created_at', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
-                \Filament\Tables\Filters\SelectFilter::make('movement_type')
-                    ->options(\App\Enums\MovementType::class),
-                \Filament\Tables\Filters\SelectFilter::make('warehouse_id')
+                SelectFilter::make('movement_type')
+                    ->options(MovementType::class),
+                SelectFilter::make('warehouse_id')
                     ->relationship('warehouse', 'name'),
             ])
             ->recordActions([
-                \Filament\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

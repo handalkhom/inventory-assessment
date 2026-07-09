@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Warehouses;
 use App\Filament\Resources\Warehouses\Pages\CreateWarehouse;
 use App\Filament\Resources\Warehouses\Pages\EditWarehouse;
 use App\Filament\Resources\Warehouses\Pages\ListWarehouses;
+use App\Filament\Resources\Warehouses\Pages\ViewWarehouse;
+use App\Filament\Resources\Warehouses\RelationManagers\ProductsRelationManager;
 use App\Filament\Resources\Warehouses\Schemas\WarehouseForm;
 use App\Filament\Resources\Warehouses\Tables\WarehousesTable;
 use App\Models\Warehouse;
@@ -33,7 +35,7 @@ class WarehouseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            \App\Filament\Resources\Warehouses\RelationManagers\ProductsRelationManager::class,
+            ProductsRelationManager::class,
         ];
     }
 
@@ -42,7 +44,7 @@ class WarehouseResource extends Resource
         return [
             'index' => ListWarehouses::route('/'),
             'create' => CreateWarehouse::route('/create'),
-            'view' => \App\Filament\Resources\Warehouses\Pages\ViewWarehouse::route('/{record}'),
+            'view' => ViewWarehouse::route('/{record}'),
             'edit' => EditWarehouse::route('/{record}/edit'),
         ];
     }

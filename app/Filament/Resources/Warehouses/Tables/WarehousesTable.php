@@ -5,8 +5,10 @@ namespace App\Filament\Resources\Warehouses\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class WarehousesTable
@@ -34,10 +36,10 @@ class WarehousesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                \Filament\Tables\Filters\TernaryFilter::make('is_active'),
+                TernaryFilter::make('is_active'),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
+                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([

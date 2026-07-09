@@ -7,6 +7,7 @@ use App\Filament\Resources\StockMovements\Pages\EditStockMovement;
 use App\Filament\Resources\StockMovements\Pages\ListStockMovements;
 use App\Filament\Resources\StockMovements\Schemas\StockMovementForm;
 use App\Filament\Resources\StockMovements\Tables\StockMovementsTable;
+use App\Filament\Resources\StockMovements\Widgets\StockMovementStats;
 use App\Models\StockMovement;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -33,7 +34,7 @@ class StockMovementResource extends Resource
     public static function getWidgets(): array
     {
         return [
-            \App\Filament\Resources\StockMovements\Widgets\StockMovementStats::class,
+            StockMovementStats::class,
         ];
     }
 

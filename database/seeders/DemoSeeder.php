@@ -2,17 +2,19 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Warehouse;
+use App\Enums\MovementType;
 use App\Models\Product;
 use App\Models\StockMovement;
-use App\Enums\MovementType;
+use App\Models\Warehouse;
+use Faker\Factory;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        \Illuminate\Support\Facades\DB::transaction(function () {
+        DB::transaction(function () {
             // 1. Create 5 warehouses
             $warehouses = Warehouse::factory()->count(5)->create();
 
@@ -24,7 +26,7 @@ class DemoSeeder extends Seeder
                 $randomWarehouses = $warehouses->random(rand(1, 3));
                 foreach ($randomWarehouses as $warehouse) {
                     $product->warehouses()->attach($warehouse->id, [
-                        'quantity_on_hand' => rand(1, 999)
+                        'quantity_on_hand' => rand(1, 999),
                     ]);
                 }
             }
@@ -33,20 +35,20 @@ class DemoSeeder extends Seeder
             $products->load('warehouses');
 
             $movementsData = [];
-            $faker = \Faker\Factory::create();
+            $faker = Factory::create();
             $cases = MovementType::cases();
-            
+
             $now = now();
 
             for ($i = 0; $i < 200; $i++) {
                 $product = $products->random();
-                $warehouse = $product->warehouses->count() > 0 
-                                ? $product->warehouses->random() 
+                $warehouse = $product->warehouses->count() > 0
+                                ? $product->warehouses->random()
                                 : $warehouses->random();
 
                 $type = $faker->randomElement($cases);
                 $quantity = $faker->numberBetween(1, 500);
-                
+
                 if ($type === MovementType::OUT) {
                     $quantity = -$quantity;
                 } elseif ($type === MovementType::TRANSFER || $type === MovementType::ADJUSTMENT) {
@@ -65,7 +67,7 @@ class DemoSeeder extends Seeder
                     'updated_at' => $now,
                 ];
             }
-            
+
             // Batch insert
             StockMovement::insert($movementsData);
         });

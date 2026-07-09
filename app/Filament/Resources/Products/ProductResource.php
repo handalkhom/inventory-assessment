@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Products;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\Pages\ViewProduct;
+use App\Filament\Resources\Products\RelationManagers\WarehousesRelationManager;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
@@ -40,7 +42,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            \App\Filament\Resources\Products\RelationManagers\WarehousesRelationManager::class,
+            WarehousesRelationManager::class,
         ];
     }
 
@@ -49,7 +51,7 @@ class ProductResource extends Resource
         return [
             'index' => ListProducts::route('/'),
             'create' => CreateProduct::route('/create'),
-            'view' => \App\Filament\Resources\Products\Pages\ViewProduct::route('/{record}'),
+            'view' => ViewProduct::route('/{record}'),
             'edit' => EditProduct::route('/{record}/edit'),
         ];
     }
