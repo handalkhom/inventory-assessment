@@ -37,6 +37,7 @@ class WarehousesTable
                 \Filament\Tables\Filters\TernaryFilter::make('is_active'),
             ])
             ->recordActions([
+                \Filament\Tables\Actions\ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([
