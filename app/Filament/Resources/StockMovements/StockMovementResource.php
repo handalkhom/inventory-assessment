@@ -30,6 +30,13 @@ class StockMovementResource extends Resource
         return StockMovementsTable::configure($table);
     }
 
+    public static function getWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\StockMovements\Widgets\StockMovementStats::class,
+        ];
+    }
+
     public static function getRelations(): array
     {
         return [
