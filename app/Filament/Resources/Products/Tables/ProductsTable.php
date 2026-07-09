@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Warehouses\Tables;
+namespace App\Filament\Resources\Products\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -9,19 +9,25 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class WarehousesTable
+class ProductsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
+                TextColumn::make('sku')
+                    ->label('SKU')
+                    ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('location')
-                    ->searchable(),
-                TextColumn::make('capacity_m3')
+                TextColumn::make('unit_price')
+                    ->money()
+                    ->sortable(),
+                TextColumn::make('weight_kg')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('category')
+                    ->badge(),
                 IconColumn::make('is_active')
                     ->boolean(),
                 TextColumn::make('created_at')
@@ -34,6 +40,8 @@ class WarehousesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('category')
+                    ->options(\App\Enums\ProductCategory::class),
                 \Filament\Tables\Filters\TernaryFilter::make('is_active'),
             ])
             ->recordActions([
