@@ -28,12 +28,14 @@ class StockReportApiTest extends TestCase
         $product1 = Product::factory()->create(['unit_price' => 100.00]);
         $product2 = Product::factory()->create(['unit_price' => 50.00]);
 
-        $warehouse1->products()->attach($product1->id, ['quantity_on_hand' => 10]); // value: 1000
-        $warehouse1->products()->attach($product2->id, ['quantity_on_hand' => 5]);  // value: 250
-                                                                                    // total: 1250
+        $warehouse1->products()->attach($product1->id, ['quantity_on_hand' => 10]); 
+        $warehouse1->products()->attach($product2->id, ['quantity_on_hand' => 5]);  
+                                                                                    
 
-        $warehouse2->products()->attach($product1->id, ['quantity_on_hand' => 2]); // value: 200
-                                                                                   // total: 200
+        $warehouse2->products()->attach($product1->id, ['quantity_on_hand' => 2]); 
+                                                                                   
+
+        \Illuminate\Support\Facades\Artisan::call('stock:refresh-summaries');
 
         $response = $this->actingAs($this->user)->getJson('/api/v1/stock-report');
 

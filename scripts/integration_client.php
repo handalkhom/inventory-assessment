@@ -1,13 +1,7 @@
 <?php
 
-/**
- * Section B Integration Client Script
- * 
- * Standalone PHP script to demonstrate API integration with the Stock Movements endpoint.
- * No external dependencies (uses native curl).
- * 
- * Usage: php scripts/integration_client.php <api_token> [base_url]
- */
+ // Section B Integration Client Script
+
 
 if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
@@ -22,9 +16,7 @@ $apiToken = $argv[1];
 $baseUrl = isset($argv[2]) ? rtrim($argv[2], '/') : 'http://localhost:8000';
 $logFile = __DIR__ . '/integration.log';
 
-/**
- * Log a message to stdout and a file.
- */
+ // Log a message to stdout and a file.
 function logMessage(string $message, string $level = 'INFO'): void
 {
     global $logFile;
@@ -35,18 +27,15 @@ function logMessage(string $message, string $level = 'INFO'): void
     file_put_contents($logFile, $logLine, FILE_APPEND);
 }
 
-/**
- * Calculate exponential backoff delay in seconds.
- * Supports up to N retries if needed.
- */
+ // Calculate exponential backoff delay in seconds.
+ // Supports up to N retries if needed.
 function getBackoffDelay(int $attempt): int
 {
     return (int) pow(2, $attempt);
 }
 
-/**
- * Make an HTTP request using native cURL.
- */
+
+// Make HTTP request using native cURL
 function makeApiRequest(string $url, string $method, string $token, array $data = null): array
 {
     $ch = curl_init($url);
@@ -80,7 +69,7 @@ function makeApiRequest(string $url, string $method, string $token, array $data 
 
 logMessage("Starting integration script. Base URL: $baseUrl");
 
-// 1. Fetch all finished goods
+// Fetch all
 $nextPageUrl = $baseUrl . '/api/v1/products?category=finished_goods';
 $products = [];
 $pageCount = 1;
@@ -101,14 +90,14 @@ while ($nextPageUrl !== null) {
         $products = array_merge($products, $data['data']);
     }
     
-    // Check pagination via links.next
+    // Check pagination
     $nextPageUrl = $data['links']['next'] ?? null;
     $pageCount++;
 }
 
 logMessage("Successfully fetched " . count($products) . " products.");
 
-// 2. Post stock movements for each product
+// Post stock movements 
 $successCount = 0;
 $failCount = 0;
 
@@ -118,7 +107,6 @@ foreach ($products as $product) {
     
     $movementUrl = $baseUrl . '/api/v1/stock-movements';
     
-    // NOTE: moved_by is hardcoded here, but could easily be made configurable via an additional $argv argument
     $payload = [
         'product_sku' => $sku,
         'warehouse_id' => 1,

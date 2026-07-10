@@ -15,12 +15,6 @@ class TopWarehousesTable extends TableWidget
 
     public function table(Table $table): Table
     {
-        /*
-         * ASSUMPTION:
-         * For the purpose of this assessment, capacity utilization is calculated
-         * using the current quantity_on_hand relative to warehouse capacity
-         * because the provided data model does not contain product volume information.
-         */
         return $table
             ->query(
                 Warehouse::query()
@@ -41,7 +35,7 @@ class TopWarehousesTable extends TableWidget
                     ->label('Utilization')
                     ->state(function ($record) {
                         $stock = $record->total_stock ?? 0;
-                        $cap = $record->capacity_m3 ?: 1; // avoid division by zero
+                        $cap = $record->capacity_m3 ?: 1;
 
                         return number_format(($stock / $cap) * 100, 2).'%';
                     }),

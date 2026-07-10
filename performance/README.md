@@ -1,4 +1,4 @@
-# Section D — Database Performance Optimizations
+# Section D: Database Performance Optimizations
 
 This directory contains the documentation and benchmarks for the performance improvements implemented in Section D.
 

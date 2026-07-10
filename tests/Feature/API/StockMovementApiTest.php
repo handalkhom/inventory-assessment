@@ -65,8 +65,6 @@ class StockMovementApiTest extends TestCase
         $product = Product::factory()->create();
         $warehouse = Warehouse::factory()->create();
 
-        // Trying to move out stock that doesn't exist. This triggers a ValidationException
-        // from the StockMovement model boot method (BR3). The API should catch it and return 422.
         $payload = [
             'product_sku' => $product->sku,
             'warehouse_id' => $warehouse->id,
@@ -78,7 +76,7 @@ class StockMovementApiTest extends TestCase
         $response = $this->actingAs($this->user)->postJson('/api/v1/stock-movements', $payload);
 
         $response->assertStatus(422);
-        // Ensure standard validation format is returned by checking for 'message' and 'errors'
+        
         $response->assertJsonStructure([
             'message',
             'errors'

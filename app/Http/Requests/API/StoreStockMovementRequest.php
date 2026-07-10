@@ -8,12 +8,9 @@ use Illuminate\Validation\Rule;
 
 class StoreStockMovementRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true; // Authentication handled by Sanctum middleware
+        return true;
     }
 
     /**

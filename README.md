@@ -150,17 +150,13 @@ To test the API endpoints:
 | **B** | REST API + Integration | ~60 min |
 | **C** | Livewire + Alpine.js | ~60 min |
 | **D** | Database & SQL (Performance) | ~45 min |
-| **E** | DevOps & Deployment | Pending |
-| **F** | Troubleshooting Written Answers | Pending |
+| **E** | DevOps & Deployment | ~30 min |
+| **F** | Troubleshooting Written Answers | ~30 min |
 
 ---
 
 ## Known Limitations
-- The current implementation covers Sections A, B, C, and D. Sections E–F are pending.
 - Form inputs in Filament do not yet automatically calculate available stock for real-time validation without submitting, though server-side enforcement prevents invalid data.
-
-## Bonus Completed
-- None yet.
 
 ---
 
@@ -183,3 +179,156 @@ We chose **Option A (Materialized View / Summary Table)** to resolve the 30-seco
 - An Artisan command `php artisan stock:refresh-summaries` calculates and populates the table. This keeps the architecture simple and avoids the latency overhead of model observers while completely eliminating cold-cache penalties.
 - **Before Benchmark:** >30s (timeout on 1.2M rows)
 - **After Benchmark:** ~15ms (direct lookup on the summary table)
+
+---
+
+## Section E: DevOps & Deployment
+
+We chose **Option B (Docker)** for the deployment strategy. 
+The configuration files are located in the `deployment/` directory.
+
+### Architecture Overview
+- **app**: PHP 8.2 FPM Alpine image running the Laravel application. Built using a multi-stage `Dockerfile` (Composer dependency installation -> Node asset compilation -> Production image).
+- **nginx**: Alpine Nginx image serving static assets directly and proxying PHP requests to the `app` container via FastCGI.
+- **mysql**: Official MySQL 8.0 image with a named volume for persistent storage.
+- **redis**: Official Redis Alpine image for cache, sessions, and queues.
+- **worker**: Queue worker container reusing the `app` image, explicitly configured to process jobs from Redis.
+
+### Setup Instructions
+1. Navigate to the project root directory.
+2. Ensure you do not have local services occupying ports `8000`, `3306`, or `6379`.
+3. Start the containers in the background:
+   ```bash
+   docker-compose -f deployment/docker-compose.yml up -d --build
+   ```
+4. Generate the application key and run database migrations within the container:
+   ```bash
+   docker-compose -f deployment/docker-compose.yml exec app php artisan key:generate
+   docker-compose -f deployment/docker-compose.yml exec app php artisan migrate --force
+   ```
+5. The application is now accessible at `http://localhost:8000`.
+
+### Production Considerations
+- **.dockerignore**: Excludes `.git`, tests, and local vendor/node_modules directories from the build context to keep the image slim.
+- **Asset Compilation**: Node is used as an intermediate builder stage in the `Dockerfile`. The final production image only copies the compiled assets in `public/build/`, ensuring Node is not present in the final runtime.
+- **Permissions**: The application runs as the non-root `www-data` user to adhere to security best practices.
+- **Optimization**: Laravel's configuration, routes, and views are optimized natively using `composer dump-autoload --optimize`.
+
+---
+
+## Section F: Troubleshooting Written Answers
+
+The answers to the troubleshooting scenarios (Slow Dashboard, Git Conflict Resolution, and 500 Error After Deployment) have been documented in a separate file.
+
+Please refer to [troubleshooting_answers.md](troubleshooting_answers.md) for the detailed root cause analysis, diagnostic steps, resolutions, and preventative measures.
+
+---
+
+# Bonus Questions
+
+## Bonus 1 — Docker: CMD vs ENTRYPOINT
+
+Both `CMD` and `ENTRYPOINT` define what a container runs when it starts, but they serve different purposes.
+
+### ENTRYPOINT
+
+- Defines the main executable of the container.
+- Usually remains fixed.
+- Makes the container behave like a dedicated application.
+
+Example:
+
+```dockerfile
+ENTRYPOINT ["php", "artisan"]
+```
+
+Running:
+
+```bash
+docker run app migrate
+```
+
+becomes:
+
+```bash
+php artisan migrate
+```
+
+### CMD
+
+- Provides default arguments or a default command.
+- Can easily be overridden when starting the container.
+
+Example:
+
+```dockerfile
+CMD ["serve"]
+```
+
+Combined with the previous ENTRYPOINT:
+
+```bash
+php artisan serve
+```
+
+If overridden:
+
+```bash
+docker run app migrate
+```
+
+it becomes:
+
+```bash
+php artisan migrate
+```
+
+### Why this project uses CMD
+
+For this assessment, different containers execute different Laravel commands:
+
+- `app` → PHP-FPM
+- `worker` → `php artisan queue:work`
+
+Using the same Docker image while overriding the command in `docker-compose.yml` keeps the deployment simple and avoids maintaining multiple images.
+
+---
+
+## Bonus 2 — Flutter + Laravel Architecture
+
+For a mobile application, I would separate responsibilities between Flutter and Laravel.
+
+```
+Flutter App
+        │
+ HTTPS REST API
+        │
+Laravel API
+        │
+Business Rules
+        │
+Database
+```
+
+### Flutter Responsibilities
+
+- User interface
+- Local state management
+- Authentication token storage
+- API communication
+- Offline caching when appropriate
+
+### Laravel Responsibilities
+
+- Authentication (Sanctum or JWT)
+- Business rules
+- Validation
+- Authorization
+- Database persistence
+- Reporting and integrations
+
+### Why this architecture?
+
+Keeping business rules inside Laravel ensures every client (Flutter, web application, or third-party integrations) follows exactly the same validation and domain logic.
+
+This is the same architectural approach used throughout this assessment, where business rules are enforced in the domain layer instead of the presentation layer.
