@@ -94,10 +94,20 @@ class StockAdjustmentManager extends Component
             $this->dispatch('stock-adjusted');
 
             // Reset form
-            $this->reset(['quantity', 'notes', 'productId', 'warehouseId']);
+            $this->reset([
+                            'notes',
+                            'productId',
+                            'warehouseId',
+                        ]);
+
+            $this->quantity = 1;
 
         } catch (ValidationException $e) {
-            $this->addError('quantity', $e->getMessage());
+            foreach ($e->errors() as $field => $messages) {
+                foreach ($messages as $message) {
+                    $this->addError($field, $message);
+                }
+            }
         }
     }
 

@@ -35,11 +35,13 @@
             </div>
         </div>
 
-        <!-- Alpine Component for Quantity -->
         <div 
+            data-max-stock="{{ $this->availableStock }}"
             x-data="{ 
-                qty: @entangle('quantity'), 
-                maxStock: @entangle('availableStock').live,
+                qty: @entangle('quantity'),
+                get maxStock() {
+                    return Number(this.$root.dataset.maxStock) || 0;
+                },
                 
                 increment() {
                     if (this.qty < this.maxStock) this.qty++;
@@ -60,7 +62,7 @@
         >
             <label for="quantity" class="block text-sm font-medium text-gray-700">Adjustment Quantity</label>
             <div class="flex items-center space-x-3">
-                <button type="button" @click="decrement" :disabled="qty <= 1 || maxStock === 0" class="w-10 h-10 flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <button type="button" @click="decrement()" :disabled="qty <= 1 || maxStock === 0" class="w-10 h-10 flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
                     </svg>
@@ -70,14 +72,14 @@
                     type="number" 
                     id="quantity" 
                     x-model.number.debounce.500ms="qty" 
-                    @input="validateInput"
+                    @input="validateInput()"
                     :disabled="maxStock === 0"
                     class="w-24 text-center border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-semibold text-gray-900 disabled:opacity-50 disabled:bg-gray-100"
                     min="1"
                     :max="maxStock"
                 >
 
-                <button type="button" @click="increment" :disabled="qty >= maxStock || maxStock === 0" class="w-10 h-10 flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <button type="button" @click="increment()" :disabled="qty >= maxStock || maxStock === 0" class="w-10 h-10 flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                     </svg>
