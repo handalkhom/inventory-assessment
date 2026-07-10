@@ -151,12 +151,11 @@ To test the API endpoints:
 | **C** | Livewire + Alpine.js | ~60 min |
 | **D** | Database & SQL (Performance) | ~45 min |
 | **E** | DevOps & Deployment | ~30 min |
-| **F** | Troubleshooting Written Answers | Pending |
+| **F** | Troubleshooting Written Answers | ~30 min |
 
 ---
 
 ## Known Limitations
-- The current implementation covers Sections A to E. Section F is pending.
 - Form inputs in Filament do not yet automatically calculate available stock for real-time validation without submitting, though server-side enforcement prevents invalid data.
 
 ## Bonus Completed
@@ -217,3 +216,11 @@ The configuration files are located in the `deployment/` directory.
 - **Asset Compilation**: Node is used as an intermediate builder stage in the `Dockerfile`. The final production image only copies the compiled assets in `public/build/`, ensuring Node is not present in the final runtime.
 - **Permissions**: The application runs as the non-root `www-data` user to adhere to security best practices.
 - **Optimization**: Laravel's configuration, routes, and views are optimized natively using `composer dump-autoload --optimize`.
+
+---
+
+## Section F: Troubleshooting Written Answers
+
+The answers to the troubleshooting scenarios (Slow Dashboard, Git Conflict Resolution, and 500 Error After Deployment) have been documented in a separate file.
+
+Please refer to [troubleshooting_answers.md](troubleshooting_answers.md) for the detailed root cause analysis, diagnostic steps, resolutions, and preventative measures.
