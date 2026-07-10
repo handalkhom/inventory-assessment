@@ -148,16 +148,38 @@ To test the API endpoints:
 |---------|------|------|
 | **A** | Laravel + Filament CRUD | ~110 min |
 | **B** | REST API + Integration | ~60 min |
-| **C** | Livewire + Alpine.js | Pending |
-| **D** | Database & SQL (Performance) | Pending |
+| **C** | Livewire + Alpine.js | ~60 min |
+| **D** | Database & SQL (Performance) | ~45 min |
 | **E** | DevOps & Deployment | Pending |
 | **F** | Troubleshooting Written Answers | Pending |
 
 ---
 
 ## Known Limitations
-- The current implementation covers Sections A and B. Sections C–F are pending.
+- The current implementation covers Sections A, B, C, and D. Sections E–F are pending.
 - Form inputs in Filament do not yet automatically calculate available stock for real-time validation without submitting, though server-side enforcement prevents invalid data.
 
 ## Bonus Completed
 - None yet.
+
+---
+
+## Section D: Database Performance (Explanation)
+
+All benchmarks and `EXPLAIN` outputs are documented in the `performance/README.md` file. Here is a summary of the approach:
+
+### 1. Index Strategy
+Three indexes were safely added to `stock_movements` to eliminate full table scans:
+- `(warehouse_id, created_at)`: Optimizes the dashboard widget query (Pattern 1), bringing it from 2.5s to <50ms, and preventing filesorts.
+- `(product_id, movement_type)`: Optimizes the product aggregate query (Pattern 2), bringing it from 1.8s to <30ms.
+- `(reference_number)`: Optimizes the reference lookup (Pattern 3), bringing it from 3.2s to <20ms.
+
+### 2. Complex Report Query
+We provided a single optimized standard SQL query using scalar subqueries for retrieving the latest movement details. This query is highly efficient, cleanly avoiding `LATERAL JOIN` complexities while maintaining index utilization (no `ALL` scans on large tables).
+
+### 3. Reporting Optimization
+We chose **Option A (Materialized View / Summary Table)** to resolve the 30-second timeout on the `GET /api/v1/stock-report` endpoint. 
+- A migration creates `warehouse_stock_summaries`.
+- An Artisan command `php artisan stock:refresh-summaries` calculates and populates the table. This keeps the architecture simple and avoids the latency overhead of model observers while completely eliminating cold-cache penalties.
+- **Before Benchmark:** >30s (timeout on 1.2M rows)
+- **After Benchmark:** ~15ms (direct lookup on the summary table)
