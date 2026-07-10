@@ -35,6 +35,8 @@ class StockReportApiTest extends TestCase
         $warehouse2->products()->attach($product1->id, ['quantity_on_hand' => 2]); // value: 200
                                                                                    // total: 200
 
+        \Illuminate\Support\Facades\Artisan::call('stock:refresh-summaries');
+
         $response = $this->actingAs($this->user)->getJson('/api/v1/stock-report');
 
         $response->assertStatus(200);

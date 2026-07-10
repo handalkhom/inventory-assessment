@@ -150,13 +150,13 @@ To test the API endpoints:
 | **B** | REST API + Integration | ~60 min |
 | **C** | Livewire + Alpine.js | ~60 min |
 | **D** | Database & SQL (Performance) | ~45 min |
-| **E** | DevOps & Deployment | Pending |
+| **E** | DevOps & Deployment | ~30 min |
 | **F** | Troubleshooting Written Answers | Pending |
 
 ---
 
 ## Known Limitations
-- The current implementation covers Sections A, B, C, and D. Sections E–F are pending.
+- The current implementation covers Sections A to E. Section F is pending.
 - Form inputs in Filament do not yet automatically calculate available stock for real-time validation without submitting, though server-side enforcement prevents invalid data.
 
 ## Bonus Completed
@@ -183,3 +183,37 @@ We chose **Option A (Materialized View / Summary Table)** to resolve the 30-seco
 - An Artisan command `php artisan stock:refresh-summaries` calculates and populates the table. This keeps the architecture simple and avoids the latency overhead of model observers while completely eliminating cold-cache penalties.
 - **Before Benchmark:** >30s (timeout on 1.2M rows)
 - **After Benchmark:** ~15ms (direct lookup on the summary table)
+
+---
+
+## Section E: DevOps & Deployment
+
+We chose **Option B (Docker)** for the deployment strategy. 
+The configuration files are located in the `deployment/` directory.
+
+### Architecture Overview
+- **app**: PHP 8.2 FPM Alpine image running the Laravel application. Built using a multi-stage `Dockerfile` (Composer dependency installation -> Node asset compilation -> Production image).
+- **nginx**: Alpine Nginx image serving static assets directly and proxying PHP requests to the `app` container via FastCGI.
+- **mysql**: Official MySQL 8.0 image with a named volume for persistent storage.
+- **redis**: Official Redis Alpine image for cache, sessions, and queues.
+- **worker**: Queue worker container reusing the `app` image, explicitly configured to process jobs from Redis.
+
+### Setup Instructions
+1. Navigate to the project root directory.
+2. Ensure you do not have local services occupying ports `8000`, `3306`, or `6379`.
+3. Start the containers in the background:
+   ```bash
+   docker-compose -f deployment/docker-compose.yml up -d --build
+   ```
+4. Generate the application key and run database migrations within the container:
+   ```bash
+   docker-compose -f deployment/docker-compose.yml exec app php artisan key:generate
+   docker-compose -f deployment/docker-compose.yml exec app php artisan migrate --force
+   ```
+5. The application is now accessible at `http://localhost:8000`.
+
+### Production Considerations
+- **.dockerignore**: Excludes `.git`, tests, and local vendor/node_modules directories from the build context to keep the image slim.
+- **Asset Compilation**: Node is used as an intermediate builder stage in the `Dockerfile`. The final production image only copies the compiled assets in `public/build/`, ensuring Node is not present in the final runtime.
+- **Permissions**: The application runs as the non-root `www-data` user to adhere to security best practices.
+- **Optimization**: Laravel's configuration, routes, and views are optimized natively using `composer dump-autoload --optimize`.
