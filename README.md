@@ -158,9 +158,6 @@ To test the API endpoints:
 ## Known Limitations
 - Form inputs in Filament do not yet automatically calculate available stock for real-time validation without submitting, though server-side enforcement prevents invalid data.
 
-## Bonus Completed
-- None yet.
-
 ---
 
 ## Section D: Database Performance (Explanation)
@@ -224,3 +221,114 @@ The configuration files are located in the `deployment/` directory.
 The answers to the troubleshooting scenarios (Slow Dashboard, Git Conflict Resolution, and 500 Error After Deployment) have been documented in a separate file.
 
 Please refer to [troubleshooting_answers.md](troubleshooting_answers.md) for the detailed root cause analysis, diagnostic steps, resolutions, and preventative measures.
+
+---
+
+# Bonus Questions
+
+## Bonus 1 — Docker: CMD vs ENTRYPOINT
+
+Both `CMD` and `ENTRYPOINT` define what a container runs when it starts, but they serve different purposes.
+
+### ENTRYPOINT
+
+- Defines the main executable of the container.
+- Usually remains fixed.
+- Makes the container behave like a dedicated application.
+
+Example:
+
+```dockerfile
+ENTRYPOINT ["php", "artisan"]
+```
+
+Running:
+
+```bash
+docker run app migrate
+```
+
+becomes:
+
+```bash
+php artisan migrate
+```
+
+### CMD
+
+- Provides default arguments or a default command.
+- Can easily be overridden when starting the container.
+
+Example:
+
+```dockerfile
+CMD ["serve"]
+```
+
+Combined with the previous ENTRYPOINT:
+
+```bash
+php artisan serve
+```
+
+If overridden:
+
+```bash
+docker run app migrate
+```
+
+it becomes:
+
+```bash
+php artisan migrate
+```
+
+### Why this project uses CMD
+
+For this assessment, different containers execute different Laravel commands:
+
+- `app` → PHP-FPM
+- `worker` → `php artisan queue:work`
+
+Using the same Docker image while overriding the command in `docker-compose.yml` keeps the deployment simple and avoids maintaining multiple images.
+
+---
+
+## Bonus 2 — Flutter + Laravel Architecture
+
+For a mobile application, I would separate responsibilities between Flutter and Laravel.
+
+```
+Flutter App
+        │
+ HTTPS REST API
+        │
+Laravel API
+        │
+Business Rules
+        │
+Database
+```
+
+### Flutter Responsibilities
+
+- User interface
+- Local state management
+- Authentication token storage
+- API communication
+- Offline caching when appropriate
+
+### Laravel Responsibilities
+
+- Authentication (Sanctum or JWT)
+- Business rules
+- Validation
+- Authorization
+- Database persistence
+- Reporting and integrations
+
+### Why this architecture?
+
+Keeping business rules inside Laravel ensures every client (Flutter, web application, or third-party integrations) follows exactly the same validation and domain logic.
+
+This is the same architectural approach used throughout this assessment, where business rules are enforced in the domain layer instead of the presentation layer.

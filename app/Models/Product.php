@@ -32,7 +32,7 @@ class Product extends Model
 
     protected static function booted(): void
     {
-        // Enforce BR1: SKU is unique and immutable. We prevent modification after creation.
+        // BR1: SKU is unique. prevent modification after creation.
         static::updating(function (Product $product) {
             if ($product->isDirty('sku')) {
                 throw new \InvalidArgumentException('SKU is immutable and cannot be changed.');

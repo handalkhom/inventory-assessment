@@ -22,14 +22,11 @@ class StockMovement extends Model
                 ]);
             }
 
-            // BR3: Transfer or Out qty <= available stock
+            // BR3: Transfer or Out qty
             if (in_array($movement->movement_type->value, ['out', 'transfer'])) {
-                // Find current stock in the specified warehouse
                 $product = Product::find($movement->product_id);
                 $available = $product ? $product->warehouses()->where('warehouse_id', $movement->warehouse_id)->first()?->pivot->quantity_on_hand ?? 0 : 0;
 
-                // If it's updating, we would ideally need to account for the previous quantity,
-                // but for this assessment we enforce the strict validation on the current value.
                 if ($movement->quantity > $available) {
                     throw ValidationException::withMessages([
                         'quantity' => "Insufficient stock. Only {$available} units available.",

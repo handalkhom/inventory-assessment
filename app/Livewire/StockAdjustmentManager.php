@@ -70,7 +70,7 @@ class StockAdjustmentManager extends Component
     {
         $this->validate();
 
-        // Additional server-side validation mirroring the Alpine one
+        // Additional server-side validation
         if ($this->quantity > $this->availableStock) {
              throw ValidationException::withMessages([
                  'quantity' => 'Quantity cannot exceed current stock.',
@@ -84,16 +84,13 @@ class StockAdjustmentManager extends Component
                 'product_sku' => $product->sku,
                 'warehouse_id' => $this->warehouseId,
                 'movement_type' => MovementType::ADJUSTMENT->value,
-                // Negative quantity for outbound adjustments
                 'quantity' => -abs($this->quantity),
                 'notes' => $this->notes,
                 'moved_by' => auth()->check() ? auth()->user()->name : 'System User',
             ]);
 
-            // Dispatch event to alpine for toast
             $this->dispatch('stock-adjusted');
 
-            // Reset form
             $this->reset([
                             'notes',
                             'productId',

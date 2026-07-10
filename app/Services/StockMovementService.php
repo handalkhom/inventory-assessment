@@ -8,13 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class StockMovementService
 {
-    /**
-     * Create a stock movement and update the warehouse stock.
-     *
-     * @param array $data
-     * @return \App\Models\StockMovement
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function createMovement(array $data): StockMovement
     {
         return DB::transaction(function () use ($data) {

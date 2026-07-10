@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
 
 class StockReportController extends Controller
-{
-    /**
-     * Get aggregated stock value per warehouse.
-     */
+{    
+    // Get aggregated stock
     public function index()
     {
         $report = Warehouse::select('warehouses.id', 'warehouses.name')

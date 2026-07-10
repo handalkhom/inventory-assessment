@@ -39,14 +39,12 @@ class ProductsRelationManager extends RelationManager
             ->filters([
                 //
             ])
+            // The rest is Read-only
             ->headerActions([
-                // Read-only view
             ])
             ->recordActions([
-                // Read-only view
             ])
             ->toolbarActions([
-                // Read-only view
             ]);
     }
 }

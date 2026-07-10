@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the products.
-     */
+ 
     public function index(Request $request)
     {
         $query = Product::query();
@@ -37,9 +35,7 @@ class ProductController extends Controller
         return ProductResource::collection($products);
     }
 
-    /**
-     * Display the specified product with warehouse stock levels.
-     */
+     // Display the specified product with warehouse stock levels.     
     public function show($sku)
     {
         $product = Product::where('sku', $sku)->with('warehouses')->firstOrFail();

@@ -8,9 +8,7 @@ use App\Models\Warehouse;
 
 class WarehouseController extends Controller
 {
-    /**
-     * Display all products and their quantities in a specific warehouse.
-     */
+     // Display all products
     public function stock($id)
     {
         $warehouse = Warehouse::with('products')->findOrFail($id);
