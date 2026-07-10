@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\API\StoreStockMovementRequest;
+use App\Http\Resources\StockMovementResource;
+use App\Services\StockMovementService;
+use Illuminate\Validation\ValidationException;
+
+class StockMovementController extends Controller
+{
+
+    public function store(StoreStockMovementRequest $request, StockMovementService $service)
+    {
+        try {
+            $movement = $service->createMovement($request->validated());
+
+            return response()->json([
+                'success' => true,
+                'data' => new StockMovementResource($movement),
+            ], 201);
+                
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+        }
+    }
+}
